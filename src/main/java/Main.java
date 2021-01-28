@@ -55,8 +55,12 @@ public class Main {
                     .connect(destAddr)
                     .addListener((ChannelFutureListener) future -> {
                         if (future.isSuccess()) {
-                            destChannel = future.channel();
-                            ctx.channel().config().setAutoRead(destChannel.isWritable());
+                            if (ctx.channel().isActive()) {
+                                destChannel = future.channel();
+                                ctx.channel().config().setAutoRead(destChannel.isWritable());
+                            } else {
+                                future.channel().close();
+                            }
                         } else {
                             ctx.close();
                         }
